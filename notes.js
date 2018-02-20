@@ -55,7 +55,7 @@ async function readOne(id) {
   await client.connect();
   const results = await client.query(query, values);
   await client.end();
-  return results.rows;
+  return results.rows[0];
 }
 
 /**
