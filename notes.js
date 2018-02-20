@@ -1,4 +1,5 @@
 /* todo sækja pakka sem vantar  */
+const { Client } = require('pg');
 
 const connectionString = process.env.DATABASE_URL;
 
@@ -14,6 +15,13 @@ const connectionString = process.env.DATABASE_URL;
  */
 async function create({ title, text, datetime } = {}) {
   /* todo útfæra */
+  const query = 'INSERT INTO notes(datetime, title, text) VALUES ($1, $2, $3)';
+  const values = [new Date(datetime), title, text];
+  const client = new Client({ connectionString });
+  await client.connect();
+  const results = await client.query(query, values);
+  await client.end();
+  console.info(results.row);
 }
 
 /**
@@ -23,6 +31,13 @@ async function create({ title, text, datetime } = {}) {
  */
 async function readAll() {
   /* todo útfæra */
+  const query = 'SELECT * FROM notes';
+
+  const client = new Client({ connectionString });
+  await client.connect();
+  const results = await client.query(query);
+  await client.end();
+  return results.rows;
 }
 
 /**
@@ -34,6 +49,13 @@ async function readAll() {
  */
 async function readOne(id) {
   /* todo útfæra */
+  const query = 'Select * from notes WHERE id = $1';
+  const values = [id];
+  const client = new Client({ connectionString });
+  await client.connect();
+  const results = await client.query(query, values);
+  await client.end();
+  return results.rows;
 }
 
 /**
@@ -48,7 +70,14 @@ async function readOne(id) {
  * @returns {Promise} Promise representing the object result of creating the note
  */
 async function update(id, { title, text, datetime } = {}) {
-  /* todo útfæra */
+  const query = 'UPDATE notes title = $1, text = $2, datetime = $3 WHERE id = $4';
+  const values = [title, text, datetime, id];
+
+  const client = new Client({ connectionString });
+  await client.connect();
+  const results = await client.query(query, values);
+  await client.end();
+  return results.rows;
 }
 
 /**
@@ -59,7 +88,14 @@ async function update(id, { title, text, datetime } = {}) {
  * @returns {Promise} Promise representing the boolean result of creating the note
  */
 async function del(id) {
-  /* todo útfæra */
+  const query = 'DELETE FROm notes WHERE id = $1';
+  const values = [id];
+
+  const client = new Client({ connectionString });
+  await client.connect();
+  const results = await client.query(query, values);
+  await client.end();
+  return results.rows;
 }
 
 module.exports = {
