@@ -22,6 +22,7 @@ async function create({ title, text, datetime } = {}) {
   const results = await client.query(query, values);
   await client.end();
   console.info(results.row);
+  return results.rows;
 }
 
 /**
