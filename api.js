@@ -55,7 +55,7 @@ router.post('/', async (req, res) => {
 
   const errors = validate({ title, text, datetime });
   if (errors.length > 0) {
-    res.status('400').json(errors);
+    return res.status('400').json(errors);
   }
 
   const note = {
@@ -65,20 +65,20 @@ router.post('/', async (req, res) => {
   };
 
   const json = await create(note);
-  if (json !== undefined) {
-    res.status('201').json(json);
+  if (json) {
+    return res.status('201').json(json);
   }
-  res.status('404').json(json);
+  return res.status('404').json(json);
 });
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const json = await readOne(id);
   console.info(json);
-  if (json !== undefined) {
-    res.status('200').json({ error: 'Note not found' });
+  if (json) {
+    return res.status('200').json(json);
   }
-  res.status('404').json({ error: 'Note not found' });
+  return res.status('404').json({ error: 'Note not found' });
 });
 
 router.put('/:id', async (req, res) => {
@@ -92,13 +92,13 @@ router.put('/:id', async (req, res) => {
   const isNote = await readOne(id);
 
   if (isNote === undefined) {
-    res.status('404').json({ error: 'Note not found' });
+    return res.status('404').json({ error: 'Note not found' });
   }
 
   const errors = validate({ title, text, datetime });
 
   if (errors.length > 0) {
-    res.status('400').json(errors);
+    return res.status('400').json(errors);
   }
 
   const note = {
@@ -107,20 +107,20 @@ router.put('/:id', async (req, res) => {
     datetime: xss(datetime),
   };
 
-  update(id, note);
-  res.status('201').send();
+  const json = await update(id, note);
+  return res.status('201').json(json);
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
-  const item = readOne(id);
+  const item = await readOne(id);
 
   if (item) {
     del(id);
-    res.status('204').end();
+    return res.status('204').end();
   }
-  res.status('404').json({ error: 'Note not found' });
+  return res.status('404').json({ error: 'Note not found' });
 });
 
 module.exports = router;
