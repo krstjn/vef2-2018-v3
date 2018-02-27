@@ -3,27 +3,6 @@ const { Client } = require('pg');
 
 const connectionString = process.env.DATABASE_URL;
 
-/**
- * Create a note asynchronously.
- *
- * @param {Object} note - Note to create
- * @param {string} note.title - Title of note
- * @param {string} note.text - Text of note
- * @param {string} note.datetime - Datetime of note
- *
- * @returns {Promise} Promise representing the object result of creating the note
- */
-async function create({ title, text, datetime } = {}) {
-  /* todo útfæra */
-  const query = 'INSERT INTO notes(datetime, title, text) VALUES ($1, $2, $3)';
-  const values = [new Date(datetime), title, text];
-  const client = new Client({ connectionString });
-  await client.connect();
-  const results = await client.query(query, values);
-  await client.end();
-  console.info(results.row);
-  return results.rows;
-}
 
 /**
  * Read all notes.
@@ -80,7 +59,27 @@ async function update(id, { title, text, datetime } = {}) {
   await client.end();
   return results.rows;
 }
-
+/**
+ * Create a note asynchronously.
+ *
+ * @param {Object} note - Note to create
+ * @param {string} note.title - Title of note
+ * @param {string} note.text - Text of note
+ * @param {string} note.datetime - Datetime of note
+ *
+ * @returns {Promise} Promise representing the object result of creating the note
+ */
+async function create({ title, text, datetime } = {}) {
+  /* todo útfæra */
+  const query = 'INSERT INTO notes(datetime, title, text) VALUES ($1, $2, $3) RETURNING id';
+  const values = [new Date(datetime), title, text];
+  const client = new Client({ connectionString });
+  await client.connect();
+  const results = await client.query(query, values);
+  await client.end();
+  const note = await readOne(results.rows[0].id);
+  return note;
+}
 /**
  * Delete a note asynchronously.
  *

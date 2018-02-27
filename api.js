@@ -65,7 +65,7 @@ router.post('/', async (req, res) => {
 
   const json = await create(note);
   if (json) {
-    return res.status('201').json(await readOne(json.insertId));
+    return res.status('201').json(json);
   }
   return res.status('500').json({ error: 'Note not found' });
 });
