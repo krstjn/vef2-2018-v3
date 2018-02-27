@@ -50,12 +50,13 @@ async function readOne(id) {
  * @returns {Promise} Promise representing the object result of creating the note
  */
 async function update(id, { title, text, datetime } = {}) {
-  const query = 'UPDATE notes title = $1, text = $2, datetime = $3 WHERE id = $4';
+  const query = 'UPDATE notes SET title = $1, text = $2, datetime = $3 WHERE id = $4';
   const values = [title, text, datetime, id];
 
   const client = new Client({ connectionString });
   await client.connect();
   const results = await client.query(query, values);
+
   await client.end();
   return results.rows;
 }
