@@ -18,10 +18,10 @@ function catchErrors(fn) {
 
 function validate({ title, text, datetime } = {}) {
   const errors = [];
-  if (title.length === 0) {
+  if (title.length === 0 || typeof title !== 'string') {
     errors.push({
       field: 'title',
-      error: 'Title must be a non-empty string',
+      error: 'Title must be a string of length 1 to 255 characters',
     });
   }
   if (typeof text !== 'string') {
@@ -42,7 +42,6 @@ function validate({ title, text, datetime } = {}) {
 /* todo útfæra api */
 router.get('/', async (req, res) => {
   const json = await readAll();
-  console.info(json);
   res.send(json);
 });
 
@@ -66,15 +65,14 @@ router.post('/', async (req, res) => {
 
   const json = await create(note);
   if (json) {
-    return res.status('201').json(json);
+    return res.status('201').json(await readOne(json.insertId));
   }
-  return res.status('404').json(json);
+  return res.status('500').json({ error: 'Note not found' });
 });
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const json = await readOne(id);
-  console.info(json);
   if (json) {
     return res.status('200').json(json);
   }
