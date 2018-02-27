@@ -88,13 +88,11 @@ router.put('/:id', async (req, res) => {
   } = req.body;
 
   const isNote = await readOne(id);
-
   if (isNote === undefined) {
     return res.status('404').json({ error: 'Note not found' });
   }
 
   const errors = validate({ title, text, datetime });
-
   if (errors.length > 0) {
     return res.status('400').json(errors);
   }
@@ -104,9 +102,9 @@ router.put('/:id', async (req, res) => {
     text: xss(text),
     datetime: xss(datetime),
   };
+  await update(id, note);
 
-  const json = await update(id, note);
-  return res.status('201').json(json);
+  return res.status('201').json(await readOne(id));
 });
 
 router.delete('/:id', async (req, res) => {
