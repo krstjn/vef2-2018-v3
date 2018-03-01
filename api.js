@@ -12,10 +12,6 @@ const {
 
 const router = express.Router();
 
-function catchErrors(fn) {
-  return (req, res, next) => fn(req, res, next).catch(next);
-}
-
 function validate({ title, text, datetime } = {}) {
   const errors = [];
   if (title.length === 0 || typeof title !== 'string') {
@@ -41,7 +37,7 @@ function validate({ title, text, datetime } = {}) {
 
 /* todo útfæra api */
 router.get('/', async (req, res) => {
-  const json = await readAll();
+  const json = await readAll().catch(console.info('Notes received'));
   res.send(json);
 });
 
@@ -63,7 +59,7 @@ router.post('/', async (req, res) => {
     datetime: xss(datetime),
   };
 
-  const json = await create(note);
+  const json = await create(note).catch(console.info('Note created'));
   if (json) {
     return res.status('201').json(json);
   }
@@ -72,7 +68,7 @@ router.post('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
-  const json = await readOne(id);
+  const json = await readOne(id).catch(console.info('Note received'));
   if (json) {
     return res.status('200').json(json);
   }
@@ -87,7 +83,7 @@ router.put('/:id', async (req, res) => {
     datetime = '',
   } = req.body;
 
-  const isNote = await readOne(id);
+  const isNote = await readOne(id).catch(console.info('Note received'));
   if (isNote === undefined) {
     return res.status('404').json({ error: 'Note not found' });
   }
@@ -102,18 +98,18 @@ router.put('/:id', async (req, res) => {
     text: xss(text),
     datetime: xss(datetime),
   };
-  await update(id, note);
+  await update(id, note).catch(console.info('Note updated'));
 
-  return res.status('201').json(await readOne(id));
+  return res.status('201').json(await readOne(id).catch(console.info('Note received')));
 });
 
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
-  const item = await readOne(id);
+  const item = await readOne(id).catch(console.info('Note received'));
 
   if (item) {
-    del(id);
+    del(id).catch(console.info('Note deleted'));
     return res.status('204').end();
   }
   return res.status('404').json({ error: 'Note not found' });
